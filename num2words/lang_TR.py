@@ -35,6 +35,7 @@ class Num2Word_TR(object):
         self.DECIMAL_SIGN = (",",)
         self.ORDINAL_SIGN = (".",)
         self.ZERO = (u"sıfır",)
+        self.SEPARATOR = u" "
         self.CARDINAL_ONES = {
             "1": u"bir",
             "2": u"iki",
@@ -115,10 +116,10 @@ class Num2Word_TR(object):
         self.order_of_last_zero_digit = 0
 
     def to_cardinal(self, value):
-        wrd = ""
+        wrd = []
         is_cardinal = self.verify_cardinal(value)
         if not is_cardinal:
-            return wrd
+            return ""
 
         if not int(value) == value:
             return self.to_cardinal_float(value)
@@ -126,65 +127,65 @@ class Num2Word_TR(object):
 
         if self.order_of_last_zero_digit >= len(self.integers_to_read[0]):
             # number like 00 and all 0s and even more, raise error
-            return wrd
+            return ""
 
         if self.total_triplets_to_read == 1:
             if self.total_digits_outside_triplets == 2:
                 if self.order_of_last_zero_digit == 1:
                     # number like x0, read cardinal x0 and return
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    return wrd
+                    ))
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit == 0:
                     # number like xy, read cardinal xy and return
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_ONES.get(
+                    ))
+                    wrd.append(self.CARDINAL_ONES.get(
                         self.integers_to_read[0][1], ""
-                    )
-                return wrd
+                    ))
+                return self.merge_words(wrd)
 
             if self.total_digits_outside_triplets == 1:
                 if self.order_of_last_zero_digit == 0:
                     # number like x, read cardinal x and return
-                    wrd += self.CARDINAL_ONES.get(
+                    wrd.append(self.CARDINAL_ONES.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    return wrd
+                    ))
+                    return self.merge_words(wrd)
 
             if self.total_digits_outside_triplets == 0:
                 if self.order_of_last_zero_digit == 2:
                     # number like x00, read cardinal x00 and return
-                    wrd += self.HUNDREDS.get(
+                    wrd.append(self.HUNDREDS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    return wrd
+                    ))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit == 1:
                     # number like xy0, read cardinal xy0 and return
-                    wrd += self.HUNDREDS.get(
+                    wrd.append(self.HUNDREDS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    wrd += self.CARDINAL_TENS.get(
+                    ))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][1], ""
-                    )
-                    return wrd
+                    ))
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit == 0:
                     # number like xyz, read cardinal xyz and return
-                    wrd += self.HUNDREDS.get(
+                    wrd.append(self.HUNDREDS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    wrd += self.CARDINAL_TENS.get(
+                    ))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][1], ""
-                    )
-                    wrd += self.CARDINAL_ONES.get(
+                    ))
+                    wrd.append(self.CARDINAL_ONES.get(
                         self.integers_to_read[0][2], ""
-                    )
-                    return wrd
+                    ))
+                    return self.merge_words(wrd)
 
         if self.total_triplets_to_read >= 2:
             if self.total_digits_outside_triplets == 2:
@@ -192,40 +193,40 @@ class Num2Word_TR(object):
                         self.integers_to_read[0]) - 1:
                     # number like x0 and all 0s, read cardinal x0 0..0
                     #  and return
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_TRIPLETS[
+                    ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
-                    return wrd
+                    ])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit == len(
                         self.integers_to_read[0]) - 2:
                     # number like xy and all 0s, read cardinal xy 0..0
                     #  and return
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_ONES.get(
+                    ))
+                    wrd.append(self.CARDINAL_ONES.get(
                         self.integers_to_read[0][1], ""
-                    )
-                    wrd += self.CARDINAL_TRIPLETS[
+                    ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
-                    return wrd
+                    ])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit < len(
                         self.integers_to_read[0]) - 2:
                     # number like xy and others, read cardinal xy n..n
                     #  and return
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_ONES.get(
+                    ))
+                    wrd.append(self.CARDINAL_ONES.get(
                         self.integers_to_read[0][1], ""
-                    )
-                    wrd += self.CARDINAL_TRIPLETS[
+                    ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
+                    ])
 
             if self.total_digits_outside_triplets == 1:
                 if self.order_of_last_zero_digit == len(
@@ -234,84 +235,84 @@ class Num2Word_TR(object):
                     #  and return
                     if not (self.total_triplets_to_read == 2 and
                             self.integers_to_read[0][0] == "1"):
-                        wrd += self.CARDINAL_ONES.get(
+                        wrd.append(self.CARDINAL_ONES.get(
                             self.integers_to_read[0][0], ""
-                        )
-                    wrd += self.CARDINAL_TRIPLETS[
+                        ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
-                    return wrd
+                    ])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit < len(
                         self.integers_to_read[0]) - 1:
                     # number like x and others, read cardinal x n..n
                     #  and return
                     if not (self.total_triplets_to_read == 2 and
                             self.integers_to_read[0][0] == "1"):
-                        wrd += self.CARDINAL_ONES.get(
+                        wrd.append(self.CARDINAL_ONES.get(
                             self.integers_to_read[0][0], ""
-                        )
-                    wrd += self.CARDINAL_TRIPLETS[
+                        ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
+                    ])
 
             if self.total_digits_outside_triplets == 0:
                 if self.order_of_last_zero_digit == len(
                         self.integers_to_read[0]) - 1:
                     # number like x00 and all 0s, read cardinal x00 0..0
                     #  and return
-                    wrd += self.HUNDREDS.get(self.integers_to_read[0][0], "")
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    wrd += self.CARDINAL_TRIPLETS[
+                    wrd.append(self.HUNDREDS.get(self.integers_to_read[0][0], ""))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
-                    return wrd
+                    ])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit == len(
                         self.integers_to_read[0]) - 2:
                     # number like xy0 and all 0s, read cardinal xy0 0..0
                     #  and return
-                    wrd += self.HUNDREDS.get(
+                    wrd.append(self.HUNDREDS.get(
                         self.integers_to_read[0][0], ""
-                    )
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    wrd += self.CARDINAL_TENS.get(
+                    ))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][1], ""
-                    )
-                    wrd += self.CARDINAL_TRIPLETS[
+                    ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
-                    return wrd
+                    ])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit == len(
                         self.integers_to_read[0]) - 3:
                     # number like xyz and all 0s, read cardinal xyz 0..0
                     #  and return
-                    wrd += self.HUNDREDS.get(self.integers_to_read[0][0], "")
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.HUNDREDS.get(self.integers_to_read[0][0], ""))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][1], ""
-                    )
-                    wrd += self.CARDINAL_ONES.get(
+                    ))
+                    wrd.append(self.CARDINAL_ONES.get(
                         self.integers_to_read[0][2], ""
-                    )
-                    wrd += self.CARDINAL_TRIPLETS[
+                    ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
-                    return wrd
+                    ])
+                    return self.merge_words(wrd)
                 if self.order_of_last_zero_digit < len(
                         self.integers_to_read[0]) - 3:
                     # number like xyz and all others, read cardinal xyz n..n
-                    wrd += self.HUNDREDS.get(self.integers_to_read[0][0], "")
-                    wrd += self.CARDINAL_HUNDRED[0]
-                    wrd += self.CARDINAL_TENS.get(
+                    wrd.append(self.HUNDREDS.get(self.integers_to_read[0][0], ""))
+                    wrd.append(self.CARDINAL_HUNDRED[0])
+                    wrd.append(self.CARDINAL_TENS.get(
                         self.integers_to_read[0][1], ""
-                    )
+                    ))
                     if not (self.total_triplets_to_read == 2 and
                             self.integers_to_read[0][2] == "1"):
-                        wrd += self.CARDINAL_ONES.get(
+                        wrd.append(self.CARDINAL_ONES.get(
                             self.integers_to_read[0][2], ""
-                        )
-                    wrd += self.CARDINAL_TRIPLETS[
+                        ))
+                    wrd.append(self.CARDINAL_TRIPLETS[
                         self.total_triplets_to_read - 1
-                    ]
+                    ])
 
             for i in list(range(self.total_triplets_to_read - 1, 0, -1)):
                 reading_triplet_order = self.total_triplets_to_read - i
@@ -327,21 +328,21 @@ class Num2Word_TR(object):
                     if not self.integers_to_read[0][
                         last_read_digit_order
                     ] == "0":
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][last_read_digit_order], ""
-                        )
+                        ))
                         if self.order_of_last_zero_digit == len(
                                 self.integers_to_read[0]) - (
                                 last_read_digit_order) - 1:
                             if i == 1:
-                                wrd += self.CARDINAL_HUNDRED[0]
-                                return wrd
+                                wrd.append(self.CARDINAL_HUNDRED[0])
+                                return self.merge_words(wrd)
                             elif i > 1:
-                                wrd += self.CARDINAL_HUNDRED[0]
-                                wrd += self.CARDINAL_TRIPLETS[i - 1]
-                                return wrd
+                                wrd.append(self.CARDINAL_HUNDRED[0])
+                                wrd.append(self.CARDINAL_TRIPLETS[i - 1])
+                                return self.merge_words(wrd)
                         else:
-                            wrd += self.CARDINAL_HUNDRED[0]
+                            wrd.append(self.CARDINAL_HUNDRED[0])
 
                     if not self.integers_to_read[0][
                                 last_read_digit_order + 1] == "0":
@@ -349,23 +350,23 @@ class Num2Word_TR(object):
                                 self.integers_to_read[0]) - (
                                 last_read_digit_order) - 2:
                             if i == 1:
-                                wrd += self.CARDINAL_TENS.get(
+                                wrd.append(self.CARDINAL_TENS.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order + 1], ""
-                                )
-                                return wrd
+                                ))
+                                return self.merge_words(wrd)
                             elif i > 1:
-                                wrd += self.CARDINAL_TENS.get(
+                                wrd.append(self.CARDINAL_TENS.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order + 1], ""
-                                )
-                                wrd += self.CARDINAL_TRIPLETS[i - 1]
-                                return wrd
+                                ))
+                                wrd.append(self.CARDINAL_TRIPLETS[i - 1])
+                                return self.merge_words(wrd)
                         else:
-                            wrd += self.CARDINAL_TENS.get(
+                            wrd.append(self.CARDINAL_TENS.get(
                                 self.integers_to_read[0][
                                     last_read_digit_order + 1], ""
-                            )
+                            ))
 
                     if not self.integers_to_read[0][
                                 last_read_digit_order + 2] == "0":
@@ -373,81 +374,80 @@ class Num2Word_TR(object):
                                 self.integers_to_read[0]) - (
                                 last_read_digit_order) - 3:
                             if i == 1:
-                                wrd += self.CARDINAL_ONES.get(
+                                wrd.append(self.CARDINAL_ONES.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order + 2], ""
-                                )
-                                return wrd
+                                ))
+                                return self.merge_words(wrd)
                             if i == 2:
                                 if not self.integers_to_read[0][
                                         last_read_digit_order:
                                         last_read_digit_order + 2
                                         ] == "00":
-                                    wrd += self.CARDINAL_ONES.get(
+                                    wrd.append(self.CARDINAL_ONES.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 2], ""
-                                    )
+                                    ))
                                 elif not self.integers_to_read[0][
                                             last_read_digit_order + 2] == "1":
-                                    wrd += self.CARDINAL_ONES.get(
+                                    wrd.append(self.CARDINAL_ONES.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 2], ""
-                                    )
-                                wrd += self.CARDINAL_TRIPLETS[i - 1]
-                                return wrd
+                                    ))
+                                wrd.append(self.CARDINAL_TRIPLETS[i - 1])
+                                return self.merge_words(wrd)
                             if i > 2:
-                                wrd += self.CARDINAL_ONES.get(
+                                wrd.append(self.CARDINAL_ONES.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order + 2], ""
-                                )
-                                wrd += self.CARDINAL_TRIPLETS[i - 1]
-                                return wrd
+                                ))
+                                wrd.append(self.CARDINAL_TRIPLETS[i - 1])
+                                return self.merge_words(wrd)
                         else:
                             if not self.integers_to_read[0][
                                     last_read_digit_order:
                                     last_read_digit_order + 2
                             ] == "00":
-                                wrd += self.CARDINAL_ONES.get(
+                                wrd.append(self.CARDINAL_ONES.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order + 2], ""
-                                )
+                                ))
                             else:
                                 if i == 2:
                                     if not self.integers_to_read[0][
                                            last_read_digit_order:
                                            last_read_digit_order + 2
                                     ] == "00":
-                                        wrd += self.CARDINAL_ONES.get(
+                                        wrd.append(self.CARDINAL_ONES.get(
                                             self.integers_to_read[0][
                                                 last_read_digit_order + 2], ""
-                                        )
+                                        ))
                                     elif not self.integers_to_read[0][
                                                 last_read_digit_order + 2
                                     ] == "1":
-                                        wrd += self.CARDINAL_ONES.get(
+                                        wrd.append(self.CARDINAL_ONES.get(
                                             self.integers_to_read[0][
                                                 last_read_digit_order + 2], ""
-                                        )
+                                        ))
 
-                    wrd += self.CARDINAL_TRIPLETS[i - 1]
+                    wrd.append(self.CARDINAL_TRIPLETS[i - 1])
 
-        return wrd
+        return self.merge_words(wrd)
 
     def to_cardinal_float(self, value):
         self.to_splitnum(value)
-        wrd = ""
-        wrd += self.pointword
+        wrd = [self.pointword]
         if len(self.integers_to_read[1]) >= 1:
-            wrd += self.CARDINAL_TENS.get(self.integers_to_read[1][0], "")
+            wrd.append(self.CARDINAL_TENS.get(self.integers_to_read[1][0], ""))
 
         if len(self.integers_to_read[1]) == 2:
-            wrd += self.CARDINAL_ONES.get(self.integers_to_read[1][1], "")
+            wrd.append(self.CARDINAL_ONES.get(self.integers_to_read[1][1], ""))
 
         if self.integers_to_read[0] == "0":
-            wrd = self.ZERO[0] + wrd
+            wrd.insert(0, self.ZERO[0])
         else:
-            wrd = self.to_cardinal(int(self.integers_to_read[0])) + wrd
-        return wrd
+            wrd.insert(0, self.to_cardinal(int(self.integers_to_read[0])))
+        return self.merge_words(wrd)
 
     def verify_cardinal(self, value):
         iscardinal = True
@@ -474,73 +474,73 @@ class Num2Word_TR(object):
         return isordinal
 
     def to_ordinal(self, value):
-        wrd = ""
+        wrd = []
         isordinal = self.verify_ordinal(value)
         if isordinal:
             self.to_splitnum(value)
 
             if self.order_of_last_zero_digit >= len(self.integers_to_read[0]):
                 # number like 00 and all 0s and even more, raise error
-                return wrd
+                return ""
 
             if self.total_triplets_to_read == 1:
                 if self.total_digits_outside_triplets == 2:
                     if self.order_of_last_zero_digit == 1:
                         # number like x0, read ordinal x0 and return
-                        wrd += self.ORDINAL_TENS.get(
+                        wrd.append(self.ORDINAL_TENS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        return wrd
+                        ))
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit == 0:
                         # number like xy, read ordinal xy and return
-                        wrd += self.CARDINAL_TENS.get(
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.ORDINAL_ONES.get(
+                        ))
+                        wrd.append(self.ORDINAL_ONES.get(
                             self.integers_to_read[0][1], ""
-                        )
-                        return wrd
+                        ))
+                        return self.merge_words(wrd)
 
                 if self.total_digits_outside_triplets == 1:
                     if self.order_of_last_zero_digit == 0:
                         # number like x, read ordinal x and return
-                        wrd += self.ORDINAL_ONES.get(
+                        wrd.append(self.ORDINAL_ONES.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        return wrd
+                        ))
+                        return self.merge_words(wrd)
 
                 if self.total_digits_outside_triplets == 0:
                     if self.order_of_last_zero_digit == 2:
                         # number like x00, read ordinal x00 and return
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.ORDINAL_HUNDRED[0]
-                        return wrd
+                        ))
+                        wrd.append(self.ORDINAL_HUNDRED[0])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit == 1:
                         # number like xy0, read ordinal xy0 and return
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_HUNDRED[0]
-                        wrd += self.ORDINAL_TENS.get(
+                        ))
+                        wrd.append(self.CARDINAL_HUNDRED[0])
+                        wrd.append(self.ORDINAL_TENS.get(
                             self.integers_to_read[0][1], ""
-                        )
-                        return wrd
+                        ))
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit == 0:
                         # number like xyz, read ordinal xyz and return
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_HUNDRED[0]
-                        wrd += self.CARDINAL_TENS.get(
+                        ))
+                        wrd.append(self.CARDINAL_HUNDRED[0])
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][1], ""
-                        )
+                        ))
                         if not self.integers_to_read[0][2] == "0":
-                            wrd += self.ORDINAL_ONES.get(
+                            wrd.append(self.ORDINAL_ONES.get(
                                 self.integers_to_read[0][2], ""
-                            )
-                        return wrd
+                            ))
+                        return self.merge_words(wrd)
 
             if self.total_triplets_to_read >= 2:
                 if self.total_digits_outside_triplets == 2:
@@ -548,40 +548,40 @@ class Num2Word_TR(object):
                             self.integers_to_read[0]) - 1:
                         # number like x0 and all 0s, read ordinal x0 0..0
                         #  and return
-                        wrd += self.CARDINAL_TENS.get(
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.ORDINAL_TRIPLETS[
+                        ))
+                        wrd.append(self.ORDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
-                        return wrd
+                        ])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit == len(
                             self.integers_to_read[0]) - 2:
                         # number like xy and all 0s, read ordinal xy 0..0
                         #  and return
-                        wrd += self.CARDINAL_TENS.get(
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_ONES.get(
+                        ))
+                        wrd.append(self.CARDINAL_ONES.get(
                             self.integers_to_read[0][1], ""
-                        )
-                        wrd += self.ORDINAL_TRIPLETS[
+                        ))
+                        wrd.append(self.ORDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
-                        return wrd
+                        ])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit < len(
                             self.integers_to_read[0]) - 2:
                         # number like xy and others, read cardinal xy n..n
                         #  and return
-                        wrd += self.CARDINAL_TENS.get(
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_ONES.get(
+                        ))
+                        wrd.append(self.CARDINAL_ONES.get(
                             self.integers_to_read[0][1], ""
-                        )
-                        wrd += self.CARDINAL_TRIPLETS[
+                        ))
+                        wrd.append(self.CARDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
+                        ])
 
                 if self.total_digits_outside_triplets == 1:
                     if self.order_of_last_zero_digit == len(
@@ -590,91 +590,91 @@ class Num2Word_TR(object):
                         #  and return
                         if not (self.total_triplets_to_read == 2 and
                                 self.integers_to_read[0][0] == "1"):
-                            wrd += self.CARDINAL_ONES.get(
+                            wrd.append(self.CARDINAL_ONES.get(
                                 self.integers_to_read[0][0], ""
-                            )
-                        wrd += self.ORDINAL_TRIPLETS[
+                            ))
+                        wrd.append(self.ORDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
-                        return wrd
+                        ])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit < len(
                             self.integers_to_read[0]) - 1:
                         # number like x and others, read cardinal x n..n
                         #  and return
                         if not (self.total_triplets_to_read == 2 and
                                 self.integers_to_read[0][0] == "1"):
-                            wrd += self.CARDINAL_ONES.get(
+                            wrd.append(self.CARDINAL_ONES.get(
                                 self.integers_to_read[0][0], ""
-                            )
-                        wrd += self.CARDINAL_TRIPLETS[
+                            ))
+                        wrd.append(self.CARDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
+                        ])
 
                 if self.total_digits_outside_triplets == 0:
                     if self.order_of_last_zero_digit == len(
                             self.integers_to_read[0]) - 1:
                         # number like x00 and all 0s, read ordinal x00 0..0
                         #  and return
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_HUNDRED[0]
-                        wrd += self.ORDINAL_TRIPLETS[
+                        ))
+                        wrd.append(self.CARDINAL_HUNDRED[0])
+                        wrd.append(self.ORDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
-                        return wrd
+                        ])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit == len(
                             self.integers_to_read[0]) - 2:
                         # number like xy0 and all 0s, read ordinal xy0 0..0
                         #  and return
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_HUNDRED[0]
-                        wrd += self.CARDINAL_TENS.get(
+                        ))
+                        wrd.append(self.CARDINAL_HUNDRED[0])
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][1], ""
-                        )
-                        wrd += self.ORDINAL_TRIPLETS[
+                        ))
+                        wrd.append(self.ORDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
-                        return wrd
+                        ])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit == len(
                             self.integers_to_read[0]) - 3:
                         # number like xyz and all 0s, read ordinal xyz 0..0
                         #  and return
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_HUNDRED[0]
-                        wrd += self.CARDINAL_TENS.get(
+                        ))
+                        wrd.append(self.CARDINAL_HUNDRED[0])
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][1], ""
-                        )
-                        wrd += self.CARDINAL_ONES.get(
+                        ))
+                        wrd.append(self.CARDINAL_ONES.get(
                             self.integers_to_read[0][2], ""
-                        )
-                        wrd += self.ORDINAL_TRIPLETS[
+                        ))
+                        wrd.append(self.ORDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
-                        return wrd
+                        ])
+                        return self.merge_words(wrd)
                     if self.order_of_last_zero_digit < len(
                             self.integers_to_read[0]) - 3:
                         # number like xyz and all others, read cardinal
                         #  xyz n..n
-                        wrd += self.HUNDREDS.get(
+                        wrd.append(self.HUNDREDS.get(
                             self.integers_to_read[0][0], ""
-                        )
-                        wrd += self.CARDINAL_HUNDRED[0]
-                        wrd += self.CARDINAL_TENS.get(
+                        ))
+                        wrd.append(self.CARDINAL_HUNDRED[0])
+                        wrd.append(self.CARDINAL_TENS.get(
                             self.integers_to_read[0][1], ""
-                        )
+                        ))
                         if not (self.total_triplets_to_read == 2 and
                                 self.integers_to_read[0][2] == "1"):
-                            wrd += self.CARDINAL_ONES.get(
+                            wrd.append(self.CARDINAL_ONES.get(
                                 self.integers_to_read[0][2], ""
-                            )
-                        wrd += self.CARDINAL_TRIPLETS[
+                            ))
+                        wrd.append(self.CARDINAL_TRIPLETS[
                             self.total_triplets_to_read - 1
-                        ]
+                        ])
 
                 for i in list(range(self.total_triplets_to_read - 1, 0, -1)):
                     reading_triplet_order = self.total_triplets_to_read - i
@@ -694,23 +694,23 @@ class Num2Word_TR(object):
                             if not self.integers_to_read[0][
                                 last_read_digit_order
                             ] == "1":
-                                wrd += self.CARDINAL_ONES.get(
+                                wrd.append(self.CARDINAL_ONES.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order
                                     ], ""
-                                )
+                                ))
                             if self.order_of_last_zero_digit == len(
                                     self.integers_to_read[0]) - (
                                     last_read_digit_order) - 1:
                                 if i == 1:
-                                    wrd += self.ORDINAL_HUNDRED[0]
-                                    return wrd
+                                    wrd.append(self.ORDINAL_HUNDRED[0])
+                                    return self.merge_words(wrd)
                                 elif i > 1:
-                                    wrd += self.CARDINAL_HUNDRED[0]
-                                    wrd += self.ORDINAL_TRIPLETS[i - 1]
-                                    return wrd
+                                    wrd.append(self.CARDINAL_HUNDRED[0])
+                                    wrd.append(self.ORDINAL_TRIPLETS[i - 1])
+                                    return self.merge_words(wrd)
                             else:
-                                wrd += self.CARDINAL_HUNDRED[0]
+                                wrd.append(self.CARDINAL_HUNDRED[0])
 
                         if not self.integers_to_read[0][
                                     last_read_digit_order + 1
@@ -719,23 +719,23 @@ class Num2Word_TR(object):
                                     self.integers_to_read[0]) - (
                                     last_read_digit_order) - 2:
                                 if i == 1:
-                                    wrd += self.ORDINAL_TENS.get(
+                                    wrd.append(self.ORDINAL_TENS.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 1], ""
-                                    )
-                                    return wrd
+                                    ))
+                                    return self.merge_words(wrd)
                                 elif i > 1:
-                                    wrd += self.CARDINAL_TENS.get(
+                                    wrd.append(self.CARDINAL_TENS.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 1], ""
-                                    )
-                                    wrd += self.ORDINAL_TRIPLETS[i - 1]
-                                    return wrd
+                                    ))
+                                    wrd.append(self.ORDINAL_TRIPLETS[i - 1])
+                                    return self.merge_words(wrd)
                             else:
-                                wrd += self.CARDINAL_TENS.get(
+                                wrd.append(self.CARDINAL_TENS.get(
                                     self.integers_to_read[0][
                                         last_read_digit_order + 1], ""
-                                )
+                                ))
 
                         if not self.integers_to_read[0][
                                     last_read_digit_order + 2
@@ -744,61 +744,61 @@ class Num2Word_TR(object):
                                     self.integers_to_read[0]) - (
                                     last_read_digit_order) - 3:
                                 if i == 1:
-                                    wrd += self.ORDINAL_ONES.get(
+                                    wrd.append(self.ORDINAL_ONES.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 2], ""
-                                    )
-                                    return wrd
+                                    ))
+                                    return self.merge_words(wrd)
                                 if i == 2:
                                     if not self.integers_to_read[0][
                                        last_read_digit_order:
                                             last_read_digit_order + 2] == "00":
-                                        wrd += self.CARDINAL_ONES.get(
+                                        wrd.append(self.CARDINAL_ONES.get(
                                             self.integers_to_read[0][
                                                 last_read_digit_order + 2], ""
-                                        )
+                                        ))
                                     elif not self.integers_to_read[0][
                                                 last_read_digit_order + 2
                                     ] == "1":
-                                        wrd += self.CARDINAL_ONES.get(
+                                        wrd.append(self.CARDINAL_ONES.get(
                                             self.integers_to_read[0][
                                                 last_read_digit_order + 2], ""
-                                        )
-                                    wrd += self.ORDINAL_TRIPLETS[i - 1]
-                                    return wrd
+                                        ))
+                                    wrd.append(self.ORDINAL_TRIPLETS[i - 1])
+                                    return self.merge_words(wrd)
                                 if i > 2:
-                                    wrd += self.CARDINAL_ONES.get(
+                                    wrd.append(self.CARDINAL_ONES.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 2], ""
-                                    )
-                                    wrd += self.ORDINAL_TRIPLETS[i - 1]
-                                    return wrd
+                                    ))
+                                    wrd.append(self.ORDINAL_TRIPLETS[i - 1])
+                                    return self.merge_words(wrd)
                             else:
                                 if not self.integers_to_read[0][
                                    last_read_digit_order:
                                         last_read_digit_order + 2] == "00":
-                                    wrd += self.CARDINAL_ONES.get(
+                                    wrd.append(self.CARDINAL_ONES.get(
                                         self.integers_to_read[0][
                                             last_read_digit_order + 2], ""
-                                    )
+                                    ))
                                 else:
                                     if not self.integers_to_read[0][
                                        last_read_digit_order:
                                            last_read_digit_order + 2] == "00":
-                                        wrd += self.CARDINAL_ONES.get(
+                                        wrd.append(self.CARDINAL_ONES.get(
                                             self.integers_to_read[0][
                                                 last_read_digit_order + 2], ""
-                                        )
+                                        ))
                                     elif not self.integers_to_read[0][
                                             last_read_digit_order + 2] == "1":
-                                        wrd += self.CARDINAL_ONES.get(
+                                        wrd.append(self.CARDINAL_ONES.get(
                                             self.integers_to_read[0][
                                                 last_read_digit_order + 2], ""
-                                        )
+                                        ))
 
-                        wrd += self.CARDINAL_TRIPLETS[i - 1]
+                        wrd.append(self.CARDINAL_TRIPLETS[i - 1])
 
-        return wrd
+        return self.merge_words(wrd)
 
     def to_splitnum(self, val):
         float_digits = str(int(val * 10 ** self.precision))
@@ -836,3 +836,7 @@ class Num2Word_TR(object):
         if len(valueparts) == 2:
             return self.CURRENCY_UNIT[0].join(valueparts) + \
                    self.CURRENCY_SUBUNIT[0]
+
+    def merge_words(self, wrd):
+        wrd = list(filter(None, wrd))
+        return self.SEPARATOR.join(wrd)
